@@ -16,13 +16,14 @@ module Griddler
         msg = params['_json'][0]['msys']['relay_message']
         content = msg['content']
         mail = Mail.read_from_string(content['email_rfc822'])
-        raw_headers = content['headers']
+        raw_headers = headers_raw(content['headers'])
         headers_hash = extract_headers(raw_headers)
-        puts headers_hash&.inspect
         # SparkPost documentation isn't clear on friendly_from.
         # In case there's a full email address (e.g. "Test User <test@test.com>"), strip out junk
-        # Actually no, don't strip out junk
-        clean_from = headers_hash['From'] #msg['friendly_from']#.split('<').last.delete('>').strip
+        # clean_from = msg['friendly_from'].split('<').last.delete('>').strip
+        # Actually we don't trust their clean_from and use original header to get
+        # full name since they appear to strip it
+        clean_from = headers_hash['From']
         clean_rcpt = msg["rcpt_to"] #.split('<').last.delete('>').strip
         to_addresses = Array.wrap(content['to']) << clean_rcpt
         params.merge(
