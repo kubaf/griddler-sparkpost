@@ -19,7 +19,8 @@ module Griddler
         # SparkPost documentation isn't clear on friendly_from.
         # In case there's a full email address (e.g. "Test User <test@test.com>"), strip out junk
         # Actually no, don't strip out junk
-        clean_from = msg['friendly_from'] #.split('<').last.delete('>').strip
+        raw_headers = headers_raw(content['headers'])
+        clean_from = raw_headers['From'] #msg['friendly_from']#.split('<').last.delete('>').strip
         clean_rcpt = msg["rcpt_to"] #.split('<').last.delete('>').strip
         to_addresses = Array.wrap(content['to']) << clean_rcpt
         params.merge(
@@ -29,7 +30,7 @@ module Griddler
           subject: content['subject'],
           text: content['text'],
           html: content['html'],
-          headers: headers_raw(content['headers']), # spec calls for raw headers, so convert back
+          headers: raw_headers, # spec calls for raw headers, so convert back
           attachments: attachment_files(mail)
         )
       end
