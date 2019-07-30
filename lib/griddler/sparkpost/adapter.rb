@@ -16,11 +16,13 @@ module Griddler
         msg = params['_json'][0]['msys']['relay_message']
         content = msg['content']
         mail = Mail.read_from_string(content['email_rfc822'])
+        raw_headers = content['headers']
+        headers_hash = extract_headers(raw_headers)
+        puts headers_hash&.inspect
         # SparkPost documentation isn't clear on friendly_from.
         # In case there's a full email address (e.g. "Test User <test@test.com>"), strip out junk
         # Actually no, don't strip out junk
-        raw_headers = headers_raw(content['headers'])
-        clean_from = raw_headers['From'] #msg['friendly_from']#.split('<').last.delete('>').strip
+        clean_from = headers_hash['From'] #msg['friendly_from']#.split('<').last.delete('>').strip
         clean_rcpt = msg["rcpt_to"] #.split('<').last.delete('>').strip
         to_addresses = Array.wrap(content['to']) << clean_rcpt
         params.merge(
@@ -38,6 +40,19 @@ module Griddler
       private
 
       attr_reader :params
+
+      def extract_headers(raw_headers)
+        if raw_headers.is_a?(Hash)
+          raw_headers
+        else
+          header_fields = Mail::Header.new(raw_headers).fields
+
+          header_fields.inject({}) do |header_hash, header_field|
+            header_hash[header_field.name.to_s] = header_field.value.to_s
+            header_hash
+          end
+        end
+      end
 
       def headers_raw(arr)
         # sparkpost gives us an array of header maps, with just one key and value (to preserve order)
