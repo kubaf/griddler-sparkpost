@@ -18,8 +18,9 @@ module Griddler
         mail = Mail.read_from_string(content['email_rfc822'])
         # SparkPost documentation isn't clear on friendly_from.
         # In case there's a full email address (e.g. "Test User <test@test.com>"), strip out junk
-        clean_from = msg['friendly_from'].split('<').last.delete('>').strip
-        clean_rcpt = msg["rcpt_to"].split('<').last.delete('>').strip
+        # Actually no, don't strip out junk
+        clean_from = msg['friendly_from'] #.split('<').last.delete('>').strip
+        clean_rcpt = msg["rcpt_to"] #.split('<').last.delete('>').strip
         to_addresses = Array.wrap(content['to']) << clean_rcpt
         params.merge(
           to: to_addresses.compact.uniq,
