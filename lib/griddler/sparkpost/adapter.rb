@@ -14,7 +14,7 @@ module Griddler
 
       def normalize_params
         msg = params.dig('_json', 0, 'msys', 'relay_message')
-        content = msg&.dig('content']) || ""
+        content = msg&.dig('content') || {}
         mail = Mail.read_from_string(content['email_rfc822'])
         raw_headers = headers_raw(content['headers'])
         headers_hash = extract_headers(raw_headers)
