@@ -31,8 +31,8 @@ module Griddler
           from: clean_from,
           cc: content['cc'].nil? ? [] : content['cc'],
           subject: content['subject'],
-          text: content['text'],
-          html: content['html'],
+          text: content['text']||"",
+          html: content['html']||"",
           headers: raw_headers, # spec calls for raw headers, so convert back
           attachments: attachment_files(mail)
         )
