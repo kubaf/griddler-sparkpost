@@ -13,9 +13,8 @@ module Griddler
       end
 
       def normalize_params
-        puts params&.inspect
-        msg = params['_json'][0]['msys']['relay_message']
-        content = msg['content']
+        msg = params.dig('_json', 0, 'msys', 'relay_message')
+        content = msg&.dig('content']) || ""
         mail = Mail.read_from_string(content['email_rfc822'])
         raw_headers = headers_raw(content['headers'])
         headers_hash = extract_headers(raw_headers)
@@ -25,7 +24,7 @@ module Griddler
         # Actually we don't trust their clean_from and use original header to get
         # full name since they appear to strip it
         clean_from = headers_hash['From']
-        clean_rcpt = msg["rcpt_to"] #.split('<').last.delete('>').strip
+        clean_rcpt = msg&.dig("rcpt_to") #.split('<').last.delete('>').strip
         to_addresses = Array.wrap(content['to']) << clean_rcpt
         params.merge(
           to: to_addresses.compact.uniq,
