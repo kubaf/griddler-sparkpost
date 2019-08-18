@@ -16,7 +16,7 @@ module Griddler
         msg = params.dig('_json', 0, 'msys', 'relay_message')
         content = msg&.dig('content') || {}
         mail = Mail.read_from_string(content['email_rfc822'])
-        raw_headers = headers_raw(content['headers'])
+        raw_headers = headers_raw(content['headers']||[])
         headers_hash = extract_headers(raw_headers)
         # SparkPost documentation isn't clear on friendly_from.
         # In case there's a full email address (e.g. "Test User <test@test.com>"), strip out junk
